@@ -556,15 +556,20 @@ def editar_vistoria_extintor(request, extintor_id):
     extintor = get_object_or_404(Extintor, id=extintor_id)
 
     situacao = request.POST.get("situacao")
-    data_vistoria = request.POST.get("data_vistoria")
+    data_vistoria_str = request.POST.get("data_vistoria")
+    vencimento_str = request.POST.get("data_vencimento")
 
     if situacao:
         extintor.situacao = situacao
 
-    if data_vistoria:
-        extintor.data_vistoria = data_vistoria
+    # Converte string (YYYY-MM-DD) para objeto date do Python
+    if data_vistoria_str:
+        extintor.data_vistoria = datetime.strptime(data_vistoria_str, "%Y-%m-%d").date()
+
+    if vencimento_str:
+        extintor.data_vencimento = datetime.strptime(vencimento_str, "%Y-%m-%d").date()
 
     extintor.save()
+    messages.success(request, f"Vistoria do extintor Nº {extintor.numero} atualizada com sucesso!")
 
-    # Redireciona de volta para a tela de inspeção mantendo a página onde o usuário estava
     return redirect(request.META.get("HTTP_REFERER", "inspecao_extintores"))
